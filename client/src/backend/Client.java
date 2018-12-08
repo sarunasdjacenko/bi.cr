@@ -1,5 +1,7 @@
 package backend;
 
+import org.json.JSONObject;
+import org.json.JSONTokener;
 import org.json.JSONWriter;
 
 import java.io.DataInputStream;
@@ -17,6 +19,7 @@ public class Client {
     private Socket socket;
 
     public Client(String username, String serverIP, int serverPort) {
+        this.username = username;
         this.serverIP = serverIP;
         this.serverPort = serverPort;
 
@@ -28,10 +31,13 @@ public class Client {
             ex.printStackTrace();
         }
 
+        sendMessage("test");
+
         while(true) {
             String inputMessage = "";
             try {
                 inputMessage = dataInputStream.readUTF();
+                System.out.println(inputMessage);
             } catch (Exception ex) {
                 //ex.printStackTrace();
             }
@@ -51,9 +57,17 @@ public class Client {
         StringBuffer JSONMessage = new StringBuffer();
         new JSONWriter(JSONMessage)
                 .object()
-                    .key("name").value(username)
+                    .key("name").value("Archie")
                     .key("message").value(message)
                 .endObject();
         return JSONMessage.toString();
+    }
+
+    public String[] deJSON(String JSON) {
+        JSONObject unJSONer = new JSONObject(new JSONTokener(JSON));
+        String[] nameMessage = new String[2];
+        nameMessage[0] = unJSONer.get("name").toString();
+        nameMessage[1] = unJSONer.get("message").toString();
+        return nameMessage;
     }
 }
