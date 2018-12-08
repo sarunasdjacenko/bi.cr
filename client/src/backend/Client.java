@@ -1,5 +1,8 @@
 package backend;
 
+import org.json.JSONObject;
+import org.json.JSONWriter;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 
@@ -31,16 +34,27 @@ public class Client {
             try {
                 inputMessage = dataInputStream.readUTF();
             } catch (Exception ex) {
-                ex.printStackTrace();
+                //ex.printStackTrace();
             }
         }
     }
 
     public void sendMessage(String outputMessage) {
         try {
-            dataOutputStream.writeUTF(outputMessage);
+            String message = createMessageJSON(outputMessage);
+            dataOutputStream.writeUTF(message);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
+    }
+
+    public static String createMessageJSON(String message) {
+        StringBuffer JSONMessage = new StringBuffer();
+        new JSONWriter(JSONMessage)
+                .object()
+                    .key("name").value("archie")
+                    .key("message").value(message)
+                .endObject();
+        return JSONMessage.toString();
     }
 }
