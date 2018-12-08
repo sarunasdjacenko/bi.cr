@@ -48,11 +48,11 @@ public class Client {
         }
     }
 
-    public static String createMessageJSON(String message) {
+    public String createMessageJSON(String message) {
         StringBuffer JSONMessage = new StringBuffer();
         new JSONWriter(JSONMessage)
                 .object()
-                    .key("name").value("archie")
+                    .key("name").value(username)
                     .key("message").value(message)
                 .endObject();
         return JSONMessage.toString();
