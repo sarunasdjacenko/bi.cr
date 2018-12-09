@@ -16,16 +16,14 @@ public class ClientConnection implements Runnable {
     private Socket clientSocket;
     private Debate debate;
     private Server server;
+    private String username;
 
     public ClientConnection(Socket clientSocket, Server server) {
         this.clientSocket = clientSocket;
         this.server = server;
     }
 
-    public void setDebate(Debate debate) {
-        this.debate = debate;
-        //System.out.println("test set debate");
-    }
+    public void setDebate(Debate debate) { this.debate = debate; }
 
     public void handleResponse(String JSON) {
         JSONObject unJSONer = new JSONObject(new JSONTokener(JSON));
@@ -33,13 +31,31 @@ public class ClientConnection implements Runnable {
 
         switch(requestType) {
             case "messageDebate":
-                debate.sendMessage(unJSONer.get("message").toString());
+                debate.sendMessage(unJSONer.get("message").toString(), unJSONer.get("username").toString(), (boolean) unJSONer.get("isForArgument"));
                 break;
-            //case "createDebate": 
-            //case "joinDebate": 
-            //case "exitToLobby": 
+            case "createDebate":
+                server.createDebate(unJSONer.get("debateName").toString());
+                server.joinDebate(unJSONer.get("debateName").toString(), unJSONer.get("username").toString(), (boolean) unJSONer.get("isForArgument"));
+                break;
+            case "joinDebate":
+                server.joinDebate(unJSONer.get("debateName").toString(), unJSONer.get("username").toString(), (boolean) unJSONer.get("isForArgument"));
+                break;
+            case "leaveDebate":
+                server.leaveDebate(debate, unJSONer.get("username").toString());
+                break;
+            case "getDebates":
+                server.sendDebates(clientSocket);
+                break;
+            case "setUsername":
+                username = unJSONer.get("username").toString();
+                server.addToLobby(username, this);
+                break;
         }
     }
+
+    public String getUsername() { return username; }
+
+    public Socket getClientSocket() { return clientSocket; }
 
     @Override
     public void run() {
@@ -49,8 +65,6 @@ public class ClientConnection implements Runnable {
             while (true) {
                 String inputMessage = "";
                 inputMessage = dataInputStream.readUTF();
-                //debate.sendMessage(inputMessage);
-                //System.out.println(inputMessage);
                 handleResponse(inputMessage);
             }
         } catch (Exception e) { e.printStackTrace(); }
