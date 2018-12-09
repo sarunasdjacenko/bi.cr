@@ -103,6 +103,4 @@ public class Client {
         nameMessage[1] = unJSONer.get("message").toString();
         return nameMessage;
     }
-
-
 }
