@@ -44,7 +44,7 @@ public class Client {
         }
     }
 
-    public void sendMessage(String message) {
+    private void sendMessage(String message) {
         try {
             dataOutputStream.writeUTF(message);
         } catch (Exception ex) {
