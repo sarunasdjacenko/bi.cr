@@ -83,6 +83,8 @@ public class MenuScene extends Scene {
             submit.setOnAction(event -> {
                 boolean value = selector.getValue().equals("For");
                 client.sendCreateDebate(topicField.getText(), value);
+                ChatScene chatScene = new ChatScene(client, topicField.getText());
+                popup.close();
             });
 
             container.getChildren().addAll(debateTopic, topicField, isFor, selector);
@@ -120,9 +122,11 @@ public class MenuScene extends Scene {
             submit.setOnAction(event -> {
                 boolean value = selector.getValue().equals("For");
                 client.sendJoinDebate(debate, value);
+                popup.close();
+                ChatScene chatScene = new ChatScene(client, debate);
             });
 
-            container.getChildren().addAll(debateTopic, topicField, isFor);
+            container.getChildren().addAll(debateTopic, topicField, isFor, selector);
             parent.setCenter(container);
             BorderPane.setMargin(container, new Insets(12, 12, 12, 12));
             parent.setBottom(submit);
