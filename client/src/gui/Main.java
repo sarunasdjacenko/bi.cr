@@ -1,5 +1,6 @@
 package gui;
 
+import backend.Client;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -12,6 +13,8 @@ import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 
 public class Main extends Application {
+
+    private Client client;
 
     public static void main(String[] args) {
         launch(args);
@@ -28,7 +31,14 @@ public class Main extends Application {
 
         Button goButton = new Button("Go!");
         goButton.setOnAction(event -> {
-            primaryStage.setScene(new MenuScene(new BorderPane()));
+            if(validateUsername(input.getText())) {
+                System.out.println(input.getText());
+                client = new Client(input.getText(), "10.40.152.192", 7777);
+                new Thread(()-> client.listen()).start();
+                primaryStage.setScene(new MenuScene(new BorderPane(), client));
+            } else {
+                input.setText("Please enter a name!");
+            }
         });
 
         BorderPane mainPane = new BorderPane();
@@ -40,8 +50,12 @@ public class Main extends Application {
         Scene startScene = new Scene(mainPane);
         primaryStage.setScene(startScene);
         primaryStage.setTitle("bi.cr");
-        primaryStage.setWidth(400);
-        primaryStage.setHeight(200);
+        primaryStage.setWidth(600);
+        primaryStage.setHeight(300);
         primaryStage.show();
+    }
+
+    private boolean validateUsername(String username) {
+        return(!username.equals("") && !(username == null));
     }
 }
