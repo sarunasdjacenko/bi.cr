@@ -12,6 +12,7 @@ import java.util.LinkedList;
 
 public class Client {
     private String username;
+    private boolean currentForStatus;
 
     private String serverIP;
     private int serverPort;
@@ -32,8 +33,10 @@ public class Client {
             ex.printStackTrace();
         }
 
-        sendMessage("test");
+        setUsername();
+    }
 
+    public void test() {
         while(true) {
             String inputMessage = "";
             try {
@@ -66,32 +69,35 @@ public class Client {
         new JSONWriter(JSONMessage)
                 .object()
                     .key("requestType").value("messageDebate")
-                    .key("userName").value(username)
+                    .key("username").value(username)
                     .key("message").value(message)
+                    .key("isForArgument").value(currentForStatus)
                 .endObject();
         sendMessage(JSONMessage.toString());
     }
 
     public void sendCreateDebate(String debateName, boolean forDebate) {
+        currentForStatus = forDebate;
         StringBuffer JSONMessage = new StringBuffer();
         new JSONWriter(JSONMessage)
                 .object()
                     .key("requestType").value("createDebate")
                     .key("debateName").value(debateName)
-                    .key("userName").value(username)
-                    .key("forDebate").value(forDebate)
+                    .key("username").value(username)
+                    .key("isForArgument").value(forDebate)
                 .endObject();
         sendMessage(JSONMessage.toString());
     }
 
     public void sendJoinDebate(String debateName, boolean forDebate) {
+        currentForStatus = forDebate;
         StringBuffer JSONMessage = new StringBuffer();
         new JSONWriter(JSONMessage)
                 .object()
                     .key("requestType").value("joinDebate")
                     .key("debateName").value(debateName)
-                    .key("userName").value(username)
-                    .key("forDebate").value(forDebate)
+                    .key("username").value(username)
+                    .key("isForArgument").value(forDebate)
                 .endObject();
         sendMessage(JSONMessage.toString());
     }
@@ -100,7 +106,8 @@ public class Client {
         StringBuffer JSONMessage = new StringBuffer();
         new JSONWriter(JSONMessage)
                 .object()
-                    .key("requestType").value("exitToLobby")
+                    .key("requestType").value("leaveDebate")
+                    .key("username").value(username)
                 .endObject();
         sendMessage(JSONMessage.toString());
     }
@@ -109,8 +116,18 @@ public class Client {
         StringBuffer JSONMessage = new StringBuffer();
         new JSONWriter(JSONMessage)
                 .object()
-                .key("requestType").value("getDebates")
-                .key("userName").value(username)
+                    .key("requestType").value("getDebates")
+                    .key("username").value(username)
+                .endObject();
+        sendMessage(JSONMessage.toString());
+    }
+
+    private void setUsername() {
+        StringBuffer JSONMessage = new StringBuffer();
+        new JSONWriter(JSONMessage)
+                .object()
+                    .key("requestType").value("setUsername")
+                    .key("username").value(username)
                 .endObject();
         sendMessage(JSONMessage.toString());
     }
@@ -118,7 +135,7 @@ public class Client {
     public String[] deJSONmessage(String JSON) {
         JSONObject unJSONer = new JSONObject(new JSONTokener(JSON));
         String[] nameMessage = new String[2];
-        nameMessage[0] = unJSONer.get("name").toString();
+        nameMessage[0] = unJSONer.get("username").toString();
         nameMessage[1] = unJSONer.get("message").toString();
         return nameMessage;
     }
