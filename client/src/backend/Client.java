@@ -1,59 +1,38 @@
 package backend;
-
-import org.json.JSONWriter;
-
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-
-import java.net.Socket;
+import gui;
 
 public class Client {
-    private String username;
+	private String serverIP = "localhost";
+	private int serverPort = 7777;
+	private DataInputStream dataInputStream;
+	private DataOutputStream dataOutputStream;
+	private Socket socket;
 
-    private String serverIP;
-    private int serverPort;
-    private DataInputStream dataInputStream;
-    private DataOutputStream dataOutputStream;
-    private Socket socket;
+	public Client() {
+		try {
+			socket = new Socket(serverIP, serverPort);
+			dataInputStream = new DataInputStream(socket.getInputStream());
+			dataOutputStream = new DataOutputStream(socket.getOutputStream());
+		} catch (Exception e) { throw new RuntimeException(e); }
 
-    public Client(String username, String serverIP, int serverPort) {
-        this.serverIP = serverIP;
-        this.serverPort = serverPort;
+		GUI gui = new GUI(this);
+		
+		while(true) {
+			String inputMessage = "";
+			try {
+				inputMessage = dataInputStream.readUTF();
+				gui.getResponse(inputMessage);
+			} catch (Exception e) {}
+		}
+	}
 
-        try {
-            socket = new Socket(serverIP, serverPort);
-            dataInputStream = new DataInputStream(socket.getInputStream());
-            dataOutputStream = new DataOutputStream(socket.getOutputStream());
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-
-        while(true) {
-            String inputMessage = "";
-            try {
-                inputMessage = dataInputStream.readUTF();
-            } catch (Exception ex) {
-                //ex.printStackTrace();
-            }
-        }
+	public void sendMessage(String outputMessage) {
+		try {
+			dataOutputStream.writeUTF(outputMessage);
+		} catch (Exception e) {}
     }
 
-    public void sendMessage(String outputMessage) {
-        try {
-            String message = createMessageJSON(outputMessage);
-            dataOutputStream.writeUTF(message);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-    }
-
-    public String createMessageJSON(String message) {
-        StringBuffer JSONMessage = new StringBuffer();
-        new JSONWriter(JSONMessage)
-                .object()
-                    .key("name").value(username)
-                    .key("message").value(message)
-                .endObject();
-        return JSONMessage.toString();
-    }
+    public static void main(String[] args) {
+		new Client();
+	}
 }
