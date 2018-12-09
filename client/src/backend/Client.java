@@ -1,6 +1,5 @@
 package backend;
 
-import jdk.nashorn.api.tree.NewTree;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 import org.json.JSONWriter;
@@ -145,7 +144,6 @@ public class Client {
         for(Object o : unJSONer.getJSONArray("debates")) {
             debates.add((String) o);
         }
-        System.out.println("deJSON:" + debates.size());
     }
 
     public String getReturnType(String JSON) {
@@ -154,7 +152,6 @@ public class Client {
     }
 
     public LinkedList<String> getDebates() {
-        System.out.println("get:" + debates.size());
         return debates;
     }
 }
