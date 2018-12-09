@@ -36,7 +36,7 @@ public class Client {
         setUsername();
     }
 
-    public void test() {
+    public void listen() {
         while(true) {
             String inputMessage = "";
             try {
