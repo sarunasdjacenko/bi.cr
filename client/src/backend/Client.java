@@ -91,7 +91,7 @@ public class Client {
         StringBuffer JSONMessage = new StringBuffer();
         new JSONWriter(JSONMessage)
                 .object()
-                    .key("requestType").value("joinDebate")
+                    .key("requestType").value("exitToLobby")
                 .endObject();
         sendMessage(JSONMessage.toString());
     }
