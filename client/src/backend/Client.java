@@ -57,6 +57,7 @@ public class Client {
         StringBuffer JSONMessage = new StringBuffer();
         new JSONWriter(JSONMessage)
                 .object()
+                    .key("requestType").value("messageDebate")
                     .key("name").value("Archie")
                     .key("message").value(message)
                 .endObject();
