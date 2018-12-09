@@ -1,3 +1,5 @@
+package backend;
+
 import org.json.JSONObject;
 import org.json.JSONTokener;
 import org.json.JSONWriter;
@@ -6,6 +8,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 
 import java.net.Socket;
+import java.util.LinkedList;
 
 public class Client {
     private String username;
@@ -35,6 +38,14 @@ public class Client {
             String inputMessage = "";
             try {
                 inputMessage = dataInputStream.readUTF();
+                switch(getReturnType(inputMessage)) {
+                    case("messageDebate"):
+                        deJSONmessage(inputMessage);
+                        break;
+                    case("getDebates"):
+                        deJSONDebates(inputMessage);
+                        break;
+                }
                 System.out.println(inputMessage);
             } catch (Exception ex) {
                 //ex.printStackTrace();
@@ -94,11 +105,35 @@ public class Client {
         sendMessage(JSONMessage.toString());
     }
 
-    public String[] deJSON(String JSON) {
+    public void getDebates() {
+        StringBuffer JSONMessage = new StringBuffer();
+        new JSONWriter(JSONMessage)
+                .object()
+                .key("requestType").value("getDebates")
+                .key("userName").value(username)
+                .endObject();
+        sendMessage(JSONMessage.toString());
+    }
+
+    public String[] deJSONmessage(String JSON) {
         JSONObject unJSONer = new JSONObject(new JSONTokener(JSON));
         String[] nameMessage = new String[2];
         nameMessage[0] = unJSONer.get("name").toString();
         nameMessage[1] = unJSONer.get("message").toString();
         return nameMessage;
+    }
+
+    public LinkedList<String> deJSONDebates(String JSON) {
+        JSONObject unJSONer = new JSONObject(new JSONTokener(JSON));
+        LinkedList<String> debates = new LinkedList<>();
+        for(Object o : unJSONer.getJSONArray("debates")) {
+            debates.add((String) o);
+        }
+        return debates;
+    }
+
+    public String getReturnType(String JSON) {
+        JSONObject unJSONer = new JSONObject(new JSONTokener(JSON));
+        return (String) unJSONer.get("returnType");
     }
 }
