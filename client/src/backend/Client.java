@@ -44,24 +44,56 @@ public class Client {
         }
     }
 
-    public void sendMessage(String outputMessage) {
+    public void sendMessage(String message) {
         try {
-            String message = createMessageJSON(outputMessage);
             dataOutputStream.writeUTF(message);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
     }
 
-    public String createMessageJSON(String message) {
+    public void sendMessageDebate(String message) {
         StringBuffer JSONMessage = new StringBuffer();
         new JSONWriter(JSONMessage)
                 .object()
                     .key("requestType").value("messageDebate")
-                    .key("name").value("Archie")
+                    .key("userName").value(username)
                     .key("message").value(message)
                 .endObject();
-        return JSONMessage.toString();
+        sendMessage(JSONMessage.toString());
+    }
+
+    public void sendCreateDebate(String debateName, boolean forDebate) {
+        StringBuffer JSONMessage = new StringBuffer();
+        new JSONWriter(JSONMessage)
+                .object()
+                    .key("requestType").value("createDebate")
+                    .key("debateName").value(debateName)
+                    .key("userName").value(username)
+                    .key("forDebate").value(forDebate)
+                .endObject();
+        sendMessage(JSONMessage.toString());
+    }
+
+    public void sendJoinDebate(String debateName, boolean forDebate) {
+        StringBuffer JSONMessage = new StringBuffer();
+        new JSONWriter(JSONMessage)
+                .object()
+                    .key("requestType").value("joinDebate")
+                    .key("debateName").value(debateName)
+                    .key("userName").value(username)
+                    .key("forDebate").value(forDebate)
+                .endObject();
+        sendMessage(JSONMessage.toString());
+    }
+
+    public void sendExit() {
+        StringBuffer JSONMessage = new StringBuffer();
+        new JSONWriter(JSONMessage)
+                .object()
+                    .key("requestType").value("joinDebate")
+                .endObject();
+        sendMessage(JSONMessage.toString());
     }
 
     public String[] deJSON(String JSON) {
@@ -71,4 +103,6 @@ public class Client {
         nameMessage[1] = unJSONer.get("message").toString();
         return nameMessage;
     }
+
+
 }
