@@ -1,5 +1,6 @@
 package backend;
 
+import jdk.nashorn.api.tree.NewTree;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 import org.json.JSONWriter;
@@ -13,6 +14,7 @@ import java.util.LinkedList;
 public class Client {
     private String username;
     private boolean currentForStatus;
+    private LinkedList<String> debates;
 
     private String serverIP;
     private int serverPort;
@@ -24,6 +26,7 @@ public class Client {
         this.username = username;
         this.serverIP = serverIP;
         this.serverPort = serverPort;
+        debates = new LinkedList<>();
 
         try {
             socket = new Socket(serverIP, serverPort);
@@ -83,7 +86,6 @@ public class Client {
                 .object()
                     .key("requestType").value("createDebate")
                     .key("debateName").value(debateName)
-                    .key("username").value(username)
                     .key("isForArgument").value(forDebate)
                 .endObject();
         sendMessage(JSONMessage.toString());
@@ -96,7 +98,6 @@ public class Client {
                 .object()
                     .key("requestType").value("joinDebate")
                     .key("debateName").value(debateName)
-                    .key("username").value(username)
                     .key("isForArgument").value(forDebate)
                 .endObject();
         sendMessage(JSONMessage.toString());
@@ -107,17 +108,15 @@ public class Client {
         new JSONWriter(JSONMessage)
                 .object()
                     .key("requestType").value("leaveDebate")
-                    .key("username").value(username)
                 .endObject();
         sendMessage(JSONMessage.toString());
     }
 
-    public void getDebates() {
+    public void requestDebates() {
         StringBuffer JSONMessage = new StringBuffer();
         new JSONWriter(JSONMessage)
                 .object()
                     .key("requestType").value("getDebates")
-                    .key("username").value(username)
                 .endObject();
         sendMessage(JSONMessage.toString());
     }
@@ -140,17 +139,22 @@ public class Client {
         return nameMessage;
     }
 
-    public LinkedList<String> deJSONDebates(String JSON) {
+    public void deJSONDebates(String JSON) {
         JSONObject unJSONer = new JSONObject(new JSONTokener(JSON));
-        LinkedList<String> debates = new LinkedList<>();
+        debates.clear();
         for(Object o : unJSONer.getJSONArray("debates")) {
             debates.add((String) o);
         }
-        return debates;
+        System.out.println("deJSON:" + debates.size());
     }
 
     public String getReturnType(String JSON) {
         JSONObject unJSONer = new JSONObject(new JSONTokener(JSON));
-        return (String) unJSONer.get("returnType");
+        return (String) unJSONer.get("requestType");
+    }
+
+    public LinkedList<String> getDebates() {
+        System.out.println("get:" + debates.size());
+        return debates;
     }
 }
