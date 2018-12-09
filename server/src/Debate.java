@@ -7,40 +7,55 @@ import java.net.Socket;
 import java.util.List;
 import java.util.ArrayList; 
 import java.util.LinkedList;
+import java.util.Map;
+import java.util.HashMap;
 
 public class Debate {
     private String debateName; //not doing anything yet
-    
-    private List<Socket> forArgument;
-    private List<Socket> againstArgument;
+
+    private Map<String, ClientConnection> forArgument;
+    private Map<String, ClientConnection> againstArgument;
     private List<String> messagesList;
-    private DataOutputStream dataOutputStream;
 
     public Debate(String debateName) {
         this.debateName = debateName;
-        forArgument = new ArrayList<>();
-        againstArgument = new ArrayList<>();
+        forArgument = new HashMap<>();
+        againstArgument = new HashMap<>();
         messagesList = new LinkedList<>();
     }
 
-    public void addClient(Socket newClient, boolean isForArgument) {
-        if (isForArgument) forArgument.add(newClient);
-        else againstArgument.add(newClient);
+    public void addClient(ClientConnection client, String username, boolean isForArgument) {
+        client.setDebate(this);
+
+        if (isForArgument) forArgument.put(username, client);
+        else againstArgument.put(username, client);
     }
 
-    public void sendMessage(String message) {
+    public void removeClient(ClientConnection client, String username) {
+        client.setDebate(null);
+
+        forArgument.remove(username);
+        againstArgument.remove(username);
+    }
+
+    public ClientConnection getClient(String username) {
+        if (forArgument.get(username) != null) return forArgument.get(username);
+        else return againstArgument.get(username);
+    }
+
+    public void sendMessage(String message, String username, boolean isForArgument) {
         // append time to message
         messagesList.add(message);
 
-        for(Socket client : forArgument) {
+        for(ClientConnection client : forArgument.values()) {
             try {
-                dataOutputStream = new DataOutputStream(client.getOutputStream());
+                DataOutputStream dataOutputStream = new DataOutputStream(client.getClientSocket().getOutputStream());
                 dataOutputStream.writeUTF(message);
             } catch(Exception e) { e.printStackTrace(); }
         }
-        for(Socket client : againstArgument) {
+        for(ClientConnection client : againstArgument.values()) {
             try {
-                dataOutputStream = new DataOutputStream(client.getOutputStream());
+                DataOutputStream dataOutputStream = new DataOutputStream(client.getClientSocket().getOutputStream());
                 dataOutputStream.writeUTF(message);
             } catch(Exception e) { e.printStackTrace(); }
         }
